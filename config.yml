@@ -23,8 +23,9 @@ PATHS:
   distPhp: "dist/templates"
   # Paths to static assets that aren't images, CSS, or JavaScript
   assets:
-    - "src/assets/**/*"
-    - "!src/assets/{img,js,scss}/**/*"
+    - "src/assets/media/**/*"
+
+    # 
   # Paths to Sass libraries, which can then be loaded with @import
   sass:
     - "bower_components/foundation-sites/scss"
@@ -60,5 +61,10 @@ PATHS:
     - "bower_components/foundation-sites/js/foundation.tooltip.js"
     - "bower_components/foundation-sites/js/foundation.zf.responsiveAccordionTabs.js"
     # Paths to your own project code are here
-    - "src/assets/js/!(app).js"
+    - "src/assets/js/!(app|vendor).js"
     - "src/assets/js/app.js"
+    - "src/assets/js/vendor.js"
+
+      # Paths to JavaScript libraries, which are combined into one file
+  react:
+    - "src/react-app/app.js"

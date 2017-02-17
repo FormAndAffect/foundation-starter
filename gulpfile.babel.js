@@ -1,3 +1,5 @@
+/*eslint-env node */
+
 'use strict';
 
 import plugins  from 'gulp-load-plugins';
@@ -9,9 +11,19 @@ import rimraf   from 'rimraf';
 import sherpa   from 'style-sherpa';
 import yaml     from 'js-yaml';
 import fs       from 'fs';
+import newer    from 'gulp-newer';
+
 //for ee
 import php      from 'gulp-connect-php';
 import gulpWatch    from 'gulp-watch';
+
+//for react
+//import webpackStream from 'webpack-stream';
+//import HtmlWebpackPlugin from 'html-webpack-plugin';
+import webpack from 'webpack';
+import gutil    from 'gulp-util'
+import webpackConfig from './webpack.config.js';
+import WebpackDevServer from 'webpack-dev-server';
 
 // Load all Gulp plugins into one variable
 const $ = plugins();
@@ -27,45 +39,68 @@ function loadConfig() {
   return yaml.load(ymlFile);
 }
 
+//specity version to build
+function constructBuildArgs(version) {
+
+  gutil.log(yargs.argv.react);
+
+  let buildArgs = [];
+
+  switch (version) {
+    case 'html':
+
+        if(yargs.argv.react) {
+          buildArgs = [pages, sass, javascript, reactJavascript, images, copy];
+        } else {
+          buildArgs = [pages, sass, javascript, images, copy];
+        }
+
+      break;
+
+    case 'php':
+
+        if(yargs.argv.react) {
+          buildArgs = [sass, javascript, reactJavascript, images, phpPages, copy];
+        } else {
+          buildArgs = [sass, javascript, images, phpPages, copy];
+        }
+
+      break;
+  } 
+    
+  return buildArgs;
+}
+
+  
+
+//html build version for static html
+//--------------------------------------
+
 // Build the "dist" folder by running all of the below tasks
 gulp.task('build',
- gulp.series(clean, gulp.parallel(pages, sass, javascript, images, phpPages, copy), styleGuide));
+ gulp.series(clean, gulp.parallel(...constructBuildArgs('html')), styleGuide));
 
 // Build the site, run the server, and watch for file changes
 gulp.task('default',
-  gulp.series('build', server, watchPhp));
+  gulp.series('build', server, watch));
 
 
-//for ee
+//php build version for ee
 //--------------------------------------
-
-//copy php files to dist folder on change
-//different than gulp.watch, we use this to simply copy
-//the php files to dist dir on change
-var source = './src/php/'; 
-gulp.task('watch-folder', gulp.series(function() {  
-  gulp.src('src/php/**/*.php')
-    .pipe(gulpWatch(source, {base: source}))
-    .pipe(gulp.dest(PATHS.dist + '/templates'));
-}));
-
-// gulp.task('runphp', gulp.series('watch-folder', function() {
-//     gulp.watch('src/php/**/*.php').on('all', gulp.series(phpPages));
-// }));
 
 // Build the "dist" folder by running all of the below tasks
 gulp.task('buildphp',
- gulp.series('watch-folder', clean, gulp.parallel(sass, javascript, images, phpPages, copy), styleGuide));
+ gulp.series(clean, gulp.parallel(...constructBuildArgs('php'))));
 
 
 // Build the site, run the server, and watch for file changes
 gulp.task('runphp',
-  gulp.series('buildphp', watch));
+  gulp.series('buildphp', watchPhp));
 
 //--------------
 
 //locally serve php files for testing
-gulp.task('php', gulp.series(function() {
+gulp.task('php', gulp.series('runphp', function() {
     php.server({ base: 'src/php', port: 8010, keepalive: true});
 }));
 
@@ -80,9 +115,125 @@ gulp.task('servephp', gulp.series('php', function() {
 }));
 
 
+//for react
 //--------------------------------------
 
 
+// // run webpack through webpackStream for react
+// // this version generates hashed js files 
+// function reactJavascript() {
+//   return gulp.src(PATHS.react)
+//     //.pipe($.sourcemaps.init())
+//     //.pipe($.if(!PRODUCTION, $.sourcemaps.write()))
+//     .pipe(webpackStream({
+//       // watch: true,
+//       module: {
+//         // rules for modules (configure loaders, parser options, etc.)
+//         rules: [
+//           {
+//             test: /\.(js|jsx)$/,
+//             use: 'babel-loader'
+//           },
+//         ]
+//       },
+//       plugins: [
+//         new HtmlWebpackPlugin({
+//           template: 'src/react-template/index.html',
+//           filename: 'react.html'
+//         })
+//         //new HtmlWebpackPlugin()
+//       ],
+//       devtool: "source-map"
+//     }, webpack))
+//     //must pipe this the the dist dir to connect the HtmlWebpackPlugin
+//     //generated page
+//     .pipe(gulp.dest(PATHS.dist));
+// }
+
+// // run webpack for react (without webpackStream version) 
+function reactJavascript(done) {
+
+  if(!PRODUCTION) {
+      //dev version
+      gutil.log('running dev webpack');
+      //grab existing config file
+      var myConfig = Object.create(webpackConfig);
+      myConfig.watch = true;
+
+      var taskNum = 1; // A counter to track how many times the webpack task runs
+
+      //run webpack
+      webpack(myConfig,
+      function(err, stats) {
+          if(err) throw new gutil.PluginError("webpack", err);
+          gutil.log("[webpack]", stats.toString({
+              // output options
+          }));
+
+          // Only execute this callback the first time
+          if (taskNum === 1) {
+              done();
+          }
+
+          //callback();
+          taskNum++; // Increment the task counter
+      }); 
+    } else {
+      //build version
+      gutil.log('running production webpack');
+      // modify some webpack config options
+      var myConfig = Object.create(webpackConfig);
+      myConfig.plugins = myConfig.plugins.concat(
+        new webpack.DefinePlugin({
+          "process.env": {
+            // This has effect on the react lib size
+            "NODE_ENV": JSON.stringify("production")
+          }
+        }),
+        //compress
+        new webpack.optimize.UglifyJsPlugin()
+      );
+
+      //run webpack
+      webpack(myConfig, function(err, stats) {
+        if(err) throw new gutil.PluginError("webpack:build", err);
+        gutil.log("[webpack:build]", stats.toString({
+          colors: true
+        }));
+        //callback();
+        done();
+      });
+    }
+
+}
+
+// //use webpack dev server
+// function webpackServer(done) {
+
+//   var myConfig = Object.create(webpackConfig);
+
+//   //grab config options
+//   const compiler = webpack(webpackConfig);
+
+//   // Start a webpack-dev-server
+//   const server = new WebpackDevServer(compiler, {
+//     // publicPath: "/" + myConfig.output.publicPath,
+//     contentBase: myConfig.devServer.contentBase,
+//     compress: myConfig.devServer.compress,
+//     hot: myConfig.devServer.hot,
+//     stats: {
+//       colors: true
+//     }
+//   });
+
+//   server.listen(myConfig.devServer.port, 'localhost', function() {
+//     console.log("Starting server on http://localhost:8080/");
+//   });
+
+//   done();
+// }
+
+//--------------------------------------
 
 // Delete the "dist" folder
 // This happens every time a build starts
@@ -90,11 +241,10 @@ function clean(done) {
   rimraf(PATHS.dist, done);
 }
 
-// Copy files out of the assets folder
-// This task skips over the "img", "js", and "scss" folders, which are parsed separately
+// Copy files out of the assets/media folder
 function copy() {
   return gulp.src(PATHS.assets)
-    .pipe(gulp.dest(PATHS.dist + '/assets'));
+    .pipe(gulp.dest(PATHS.dist + '/assets/media'));
 }
 
 // Copy page templates into finished HTML files
@@ -188,10 +338,11 @@ function reload(done) {
   done();
 }
 
-// Watch for changes to static assets, pages, Sass, and JavaScript
+//watch for panini (html) changes
 function watch() {
   gulp.watch('src/pages/**/*.html').on('all', gulp.series(pages, browser.reload));
-  gulp.watch('src/{layouts,partials}/**/*.html').on('all', gulp.series(resetPages, pages, browser.reload));
+  gulp.watch('src/{layouts,partials}/**/*.html').on('all', 
+  gulp.series(resetPages, pages, browser.reload));
   watchAssets();
 }
 
@@ -202,10 +353,14 @@ function watchPhp() {
   watchAssets();
 }
 
+// Watch for changes to static assets, pages, Sass, and JavaScript
 function watchAssets() {
   gulp.watch(PATHS.assets, copy);
   gulp.watch('src/assets/scss/**/*.scss').on('all', gulp.series(sass, browser.reload));
   gulp.watch('src/assets/js/**/*.js').on('all', gulp.series(javascript, browser.reload));
   gulp.watch('src/assets/img/**/*').on('all', gulp.series(images, browser.reload));
   gulp.watch('src/styleguide/**').on('all', gulp.series(styleGuide, browser.reload));
+
+  gulp.watch('src/react-app/**/*.{js,jsx}').on('all', gulp.series(reactJavascript, browser.reload));
+  gulp.watch('src/react-template/**/*').on('all', gulp.series(reactJavascript, browser.reload));
 }

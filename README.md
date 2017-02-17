@@ -1,16 +1,22 @@
 # F&M notes
 ----
 
-## Running Project
+This is a starter boilerplate used for static html sites or expression engine templates. It's based on the Foundation Zerb Template - tweaked to optionally run php and React/Webpack.
 
 
-to run for html prototyping with Panini, navigate to project root directory then:
-(finished files copy to `dist` folder)
+## Running the Project
+
+### static html files
+
+To run for html prototyping with Panini, navigate to project root directory then:
+
 ```
 npm start
 ```
 
-preview:
+(finished files copy to `dist` folder).
+
+To preview:
 
 ```
 http://localhost:8000
@@ -19,33 +25,46 @@ http://localhost:8000
 To create compressed, production-ready assets:
 
 ```
-npm build
+npm run build
 ```
 
-### to use php files for ee, put template files in the php folder then to have it build to the 'dist' folder
+### php files (for Expression Engine)
+
+To use php files for ee, put template files in the src/php folder then:
 
 ```
 npm run runphp
 ```
 
-### to start a local php server in the browser for testing (only applies to the src folder)
+(files will be copied to dist/templates).
+
+Optionally start a local php server in the browser for testing (only applies to the src folder):
 
 ```
 npm run servephp
 ```
 
-then preview at:
+Then preview at:
 
 ```
 localhost:8010
+```
+
+To create compressed, production-ready assets:
+
+```
+buildphp
 ```
 
 
 ## SASS/CSS with Flexbox
 
 breakpoints are set at:
+
 small: 0,
+
 medium: 640px,
+
 large: 1024px,
 
 this can be adjusted in _settings.scss
@@ -57,61 +76,76 @@ http://thesassway.com/advanced/modular-css-naming-conventions
 use objects similar to SMACSS convention - like headers, footers, buttons, and content areas, etc.
 
 ###Parent-child relationships:
-```
+
+```sass
 // Posts
 .post {
-	...
+  ...
 }
 .post-title {
-	...
+  ...
 }
 ```
+
 or pluralizing
-```
+
+```sass
 .tabs {
-	...
+  ...
 }
 
 .tab {
-	...
+  ...
 }
 ```
+
 ###Subclassing
+
+```sass
 .button {
-	...
+  ...
 }
 
 .dropdown-button {
-	...
+  ...
 }
+```
 
 ###State Modifiers
+
 (would typically be used in conjunction with &
 since they only apply to the object at hand)
-.tab {
-	...
 
-  &.is-selected {
+```sass
+.tab {
   ...
+
+    &.is-selected {
+    ...
   }
 }
+```
+```sass
+.textbox {
+  ...
 
-###.textbox {
-	...
+    &:focus { ... }
 
-  &:focus { ... }
-
-  &.large { ... }
-  &.small { ... }
+    &.large { ... }
+    &.small { ... }
 }
+```
 
 ###global modifiers
+
+```sass
+
 .clearfix { @include clearfix; }
-.is-hidden    { display:    none !important; }
+.is-hidden    { display: none !important; }
 .is-invisible { visibility: none !important; }
+```
 
-
-##Folder Structure:
+###Folder Structure:
 from:
 https://zurb.com/university/lessons/avoid-a-cluttered-mess-sensible-sass-file-structure
 
@@ -141,6 +175,8 @@ scss/
 
 then import them into the _settings.scss file:
 
+```sass
+
 //mixins (import before components)
 @import
   "colorpicker.scss",
@@ -153,18 +189,17 @@ then import them into the _settings.scss file:
   "nav-main",
   "nav-side",
   "thumbnails";
+```
+
+## Javascript notes
 
 
-## Javascript
-
-----
-
-## Application javascript
-include main applicaiton scripts underneath $(document).foundation(); in
+### Application javascript
+include main applicaiton scripts underneath `$(document).foundation();` in
 src/assets/js/app.js
 
 
-## Vendor plugins:
+### Vendor plugins:
 
 first try installing them as non dev dependancies through npm or bower
 then including them in config.yml > javascript
@@ -173,11 +208,33 @@ then including them in config.yml > javascript
 If not available that way, you can include them in 
 src/assets/js/vendor.js
 
+## React
 
-# HTML templating
+React is disabled by default. To enable it, use the flag `-- --react`.
+For example
+
+```
+npm run <command> -- --react
+```
+
+Put all react source files in: src/react-app. When run, this will output one combined file in: dist/assets/react.js.
+
+To preview if react is enabled you can view the sample page: `http://localhost:8000/react-sample-page.html`.
+
+
+## HTML templating folder structure
 
 ```
 src/
+|
+|-- assets/ 
+|   |-- img/
+|   |-- js/
+|   |     |-- app.js # base application js
+|   |     |-- vendor.js # non packaged plugin js
+|   |    
+|   |-- media/ # anything to include in prod. build that's not js,img,scss
+|   |-- scss/
 |
 |-- layouts/ 
 |   |-- default.html # base template for proj.
@@ -203,6 +260,7 @@ src/
 ```
 
 # ZURB Template notes
+----
 
 [![devDependency Status](https://david-dm.org/zurb/foundation-zurb-template/dev-status.svg)](https://david-dm.org/zurb/foundation-zurb-template#info=devDependencies)
 
