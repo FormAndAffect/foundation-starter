@@ -3,6 +3,26 @@
 
 This is a starter boilerplate used for static html sites or expression engine templates. It's based on the Foundation Zerb Template - tweaked to optionally run php and React/Webpack.
 
+## Dependencies
+
+Must have Node.js, Bower, and Git installed
+
+## Installation
+
+navigate to the direcory you choose to work in on your computer
+
+```
+cd <your working directory>
+```
+install npm modules
+```
+npm install
+```
+install bower moudules
+```
+bower install
+```
+
 
 ## Running the Project
 
@@ -22,10 +42,49 @@ To preview:
 http://localhost:8000
 ```
 
+### build static html for production
+
 To create compressed, production-ready assets:
 
 ```
 npm run build
+```
+
+
+## HTML templating folder structure
+
+```
+src/
+|
+|-- assets/ # images, js, scss, media
+|   |-- img/
+|   |-- js/
+|   |     |-- app.js # base application js
+|   |     |-- vendor.js # non packaged plugin js
+|   |    
+|   |-- media/ # anything to include in prod. build that's not js,img,scss
+|   |-- scss/
+|
+|-- layouts/ # base template(s) for proj. (html tag, head tag, etc.)
+|   |-- default.html
+|   ...
+|
+|-- pages/ # page content of layout goes in this section
+|   |-- index.html 
+|   |-- sample-page.html
+|   ...
+|
+|-- partials/ # like php include for pages or layout
+|   |-- header.html 
+|   |-- navigation.html
+|   |-- footer.html
+|   ...
+|
+|-- styleguide/ # used to as snippites to help build sites or possibly for client to preview things
+|   |-- index.md # markdown file used to build the styleguide
+|   |-- template.html # display the styleguide data from md file (optionally with styleguide specific css)
+|   ...
+|   
 ```
 
 ### php files (for Expression Engine)
@@ -49,6 +108,7 @@ Then preview at:
 ```
 localhost:8010
 ```
+### build php files for production
 
 To create compressed, production-ready assets:
 
@@ -221,43 +281,6 @@ Put all react source files in: src/react-app. When run, this will output one com
 
 To preview if react is enabled you can view the sample page: `http://localhost:8000/react-sample-page.html`.
 
-
-## HTML templating folder structure
-
-```
-src/
-|
-|-- assets/ 
-|   |-- img/
-|   |-- js/
-|   |     |-- app.js # base application js
-|   |     |-- vendor.js # non packaged plugin js
-|   |    
-|   |-- media/ # anything to include in prod. build that's not js,img,scss
-|   |-- scss/
-|
-|-- layouts/ 
-|   |-- default.html # base template for proj.
-|   |-- internal.html
-|   ...
-|
-|-- pages/
-|   |-- index.html # page content goes in this section
-|   |-- sample-page.html
-|   ...
-|
-|-- partials/
-|   |-- header.html # page content goes in this section
-|   |-- navigation.html
-|   |-- footer.html
-|   ...
-|
-|-- styleguide/
-|   |-- index.md # used to build the styleguide
-|   |-- template.html
-|   ...
-|   
-```
 
 # ZURB Template notes
 ----

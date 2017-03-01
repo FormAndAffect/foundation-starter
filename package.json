@@ -1,5 +1,5 @@
 {
-  "name": "f&m boilerplate",
+  "name": "FM2boilerplate",
   "version": "1.0.0",
   "description": "Boilerplate used for static html sites or expression engine templates.",
   "main": "gulpfile.js",
