@@ -210,7 +210,7 @@ from:
 https://zurb.com/university/lessons/avoid-a-cluttered-mess-sensible-sass-file-structure
 
 the app.scss is the main file for importing all others.
-components contains partials and are structured:
+Components, contains, and partials are structured:
 -in alphabetical order
 -prefixed with an underscore (tells the sass pre-processor not to compile to it's own css file)
 
@@ -233,22 +233,23 @@ scss/
 `-- app.scss   # primary Sass file
 ```
 
-then import them into the _settings.scss file:
+then import them into the bottom of the app.scss file:
 
 ```sass
+//... foundatoin includes uptop
 
 //mixins (import before components)
 @import
-  "colorpicker.scss",
-  "jquery.ui.core.scss"
+  "mixins/colorpicker.scss",
+  "mixins/jquery.ui.core.scss"
 
 //components
 @import
-  "footer",
-  "hero",
-  "nav-main",
-  "nav-side",
-  "thumbnails";
+  "components/footer",
+  "components/hero",
+  "components/nav-main",
+  "components/nav-side",
+  "components/thumbnails";
 ```
 
 ## Javascript notes
