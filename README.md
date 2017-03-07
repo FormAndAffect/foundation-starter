@@ -239,17 +239,15 @@ then import them into the bottom of the app.scss file:
 //... foundatoin includes uptop
 
 //mixins (import before components)
-@import
-  "mixins/colorpicker.scss",
-  "mixins/jquery.ui.core.scss"
+@import "mixins/colorpicker.scss";
+@import "mixins/jquery.ui.core.scss";
 
 //components
-@import
-  "components/footer",
-  "components/hero",
-  "components/nav-main",
-  "components/nav-side",
-  "components/thumbnails";
+@import "components/footer";
+@import "components/hero";
+@import "components/nav-main";
+@import "components/nav-side";
+@import "components/thumbnails";
 ```
 
 ## Javascript notes
