@@ -62,8 +62,8 @@ PATHS:
     - "bower_components/foundation-sites/js/foundation.zf.responsiveAccordionTabs.js"
     # Paths to your own project code are here
     - "src/assets/js/!(app|vendor).js"
-    - "src/assets/js/app.js"
     - "src/assets/js/vendor.js"
+    - "src/assets/js/app.js"
 
       # Paths to JavaScript libraries, which are combined into one file
   react:
